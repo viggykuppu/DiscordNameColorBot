@@ -10,8 +10,6 @@ import (
           "github.com/bwmarrin/discordgo"	
         )
 
-var user
-
 func main(){
 	discord, err := discordgo.New("Bot MzgyNjk5NzE4NzEyNjIzMTMz.DPZhbg.8SB4ux0S99p4FL9kiPdkWoUUdiU")
 
@@ -24,8 +22,6 @@ func main(){
 
   // Open the websocket and begin listening.
   err = discord.Open()
-
-  
 
   if err != nil {
     fmt.Println("Error opening Discord session: ", err)
@@ -46,11 +42,6 @@ func parseConfig(){
 
 }
 
-func getCurrentUser(){
-  user = User("@me")
-}
-
-
 // Event to handle message creation on any channels that the bot has access to
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
   var msg = m.Message
@@ -58,10 +49,34 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
     if strings.HasPrefix(msg.Content, "*color ") {
       //var color = strings.Split(msg.Content, " ")
       fmt.Println(msg.Content)
-      _, err := s.ChannelMessageSend(msg.ChannelID, msg.Content)
-      if err != nil {
-        fmt.Println("Error sending messages to discord: ", err)
-      }
+
+      // TODO: There should be an easier way to do this. We should just be able to see which channels the bot is bound to somehow
+      guildID := getGuildID(s, msg.ChannelID)
+
+      createBasicRoleWithColor(s, 3447003)
+
+      // _, err := s.channelmessagesend(msg.channelid, msg.content)
+      // if err != nil {
+      //   fmt.println("error sending messages to discord: ", err)
+      // }
     }
   }
+}
+
+func getGuildID(s *discordgo.Session, channelID string) {
+  channel, err := s.Channel(channelID)
+  if err != nil {
+    fmt.Println("error retrieving channel to get guild ID", err)
+    return nil
+  }
+  return channel.GuildID
+}
+
+func createBasicRoleWithColor(s *discordgo.Session, guildID string, color int) {
+  newRole, err := s.GuildRoleCreate(newRole)
+  
+
+
+  newRole := discordgo.Role{Name:"new color role", Managed: false, Mentionable: false, Hoist: false, Managed: false, Color: color, Position: 1, Permissions: 0}
+  
 }
