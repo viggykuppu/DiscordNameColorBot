@@ -10,9 +10,10 @@ import (
           "github.com/bwmarrin/discordgo"	
         )
 
+var user
 
 func main(){
-	discord, err := discordgo.New("MzgyNjk5NzE4NzEyNjIzMTMz.DPZhbg.8SB4ux0S99p4FL9kiPdkWoUUdiU")
+	discord, err := discordgo.New("Bot MzgyNjk5NzE4NzEyNjIzMTMz.DPZhbg.8SB4ux0S99p4FL9kiPdkWoUUdiU")
 
   if err != nil {
     fmt.Println("Error creating discord session: ", err)
@@ -23,6 +24,9 @@ func main(){
 
   // Open the websocket and begin listening.
   err = discord.Open()
+
+  
+
   if err != nil {
     fmt.Println("Error opening Discord session: ", err)
   }
@@ -40,6 +44,10 @@ func main(){
 
 func parseConfig(){
 
+}
+
+func getCurrentUser(){
+  user = User("@me")
 }
 
 
