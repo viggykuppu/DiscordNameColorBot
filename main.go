@@ -104,8 +104,10 @@ func processColorCommand(pieces []string, s *discordgo.Session, msg *discordgo.M
       userID := msg.Author.ID
 
       setNameColor(s, guildID, userID, color)
+
+      directChannel, _ := s.UserChannelCreate(userID)
       var messageContent = msg.Author.Username + ", your color has now been set to " + pieces[1]
-      s.ChannelMessageSend(msg.ChannelID, messageContent)
+      s.ChannelMessageSend(directChannel.ID, messageContent)
     } else {
       fmt.Println("failed to parse color")
     }
@@ -115,8 +117,9 @@ func processColorCommand(pieces []string, s *discordgo.Session, msg *discordgo.M
 }
 
 func processHelpCommand(s *discordgo.Session, msg *discordgo.Message) {
+  directChannel, _ := s.UserChannelCreate(msg.Author.ID)
   var messageContent = "Please enter a command of the following format:\n\t***color <color_value>**\n\tWhere color value is of the format *#<hex_value>*, *0x<hex_value>*, or *<decimal_value>*\n\tYou can find the corresponding hex values for colors here: https://www.w3schools.com/colors/colors_picker.asp"
-  s.ChannelMessageSend(msg.ChannelID, messageContent)
+  s.ChannelMessageSend(directChannel.ID, messageContent)
 }
 
 func getGuildID(s *discordgo.Session, channelID string) string {
