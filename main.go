@@ -88,7 +88,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
   switch command {
     case "*color":
       processColorCommand(pieces, s, msg)
-    default:
+    case "*help":
       processHelpCommand(s,msg)
   }
 }
@@ -115,9 +115,13 @@ func processColorCommand(pieces []string, s *discordgo.Session, msg *discordgo.M
 }
 
 func processHelpCommand(s *discordgo.Session, msg *discordgo.Message) {
-  directChannel, _ := s.UserChannelCreate(msg.Author.ID)
-  var messageContent = "Please enter a command of the following format:\n\t***color <color_value>**\n\tWhere color value is of the format *#<hex_value>*, *0x<hex_value>*, or *<decimal_value>*\n\tYou can find the corresponding hex values for colors here: https://www.w3schools.com/colors/colors_picker.asp"
-  s.ChannelMessageSend(directChannel.ID, messageContent)
+  directChannel, err := s.UserChannelCreate(msg.Author.ID)
+  if err != nil {
+    fmt.Println("failed creating dm channel: ", err)
+  } else {
+    var messageContent = "Please enter a command of the following format:\n\t***color <color_value>**\n\tWhere color value is of the format *#<hex_value>*, *0x<hex_value>*, or *<decimal_value>*\n\tYou can find the corresponding hex values for colors here: https://www.w3schools.com/colors/colors_picker.asp"
+    s.ChannelMessageSend(directChannel.ID, messageContent)
+  }
 }
 
 func getGuildID(s *discordgo.Session, channelID string) string {
