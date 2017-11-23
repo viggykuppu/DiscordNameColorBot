@@ -24,6 +24,8 @@ func main() {
 
   discord.AddHandler(messageCreate)
 
+  discord.UpdateStatus(0,"Type *help for a Direct Message with instructions!")
+
 
   // Open the websocket and begin listening.
   err = discord.Open()
@@ -87,11 +89,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
     case "*color":
       processColorCommand(pieces, s, msg)
     default:
-      {
-        if strings.HasPrefix(command, "*") {
-          processHelpCommand(s,msg)
-        }
-      }
+      processHelpCommand(s,msg)
   }
 }
 
