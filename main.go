@@ -52,12 +52,16 @@ func parseConfig(){
   var lines = strings.Split(stringData,"\n")
 
   for _, line := range lines {
-    pieces := strings.Split(line,"=")
-    key := pieces[0]
-    value := pieces[1]
-    switch key {
-      case "auth_token":
-        authToken = value
+    if !strings.HasPrefix(line, "#") {
+      pieces := strings.Split(line,"=")
+      if len(pieces) == 2 {
+        key := pieces[0]
+        value := pieces[1]
+        switch key {
+          case "auth_token":
+            authToken = value
+        }
+      } 
     }
   }
 }
