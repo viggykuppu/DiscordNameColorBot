@@ -144,9 +144,13 @@ func setNameColor(s *discordgo.Session, guildID string, userID string, color int
   if existingRole != nil {
     s.GuildRoleEdit(guildID, existingRole.ID, existingRole.Name, color, existingRole.Hoist, existingRole.Permissions, existingRole.Mentionable)
   } else {
-    newRole, _ := s.GuildRoleCreate(guildID)
-    s.GuildRoleEdit(guildID, newRole.ID, userID + "'s color role", color, false, 0, false)
-    s.GuildMemberRoleAdd(guildID, userID, newRole.ID)
+    newRole, err := s.GuildRoleCreate(guildID)
+    if err != nil {
+      fmt.Println("error creating new role", err)
+    } else {
+      s.GuildRoleEdit(guildID, newRole.ID, userID + "'s color role", color, false, 0, false)
+      s.GuildMemberRoleAdd(guildID, userID, newRole.ID)
+    }
   }
 }
 
