@@ -6,12 +6,13 @@ import (
           "os/signal"
           "strings"
           "syscall"
+          "strconv"
 
           "github.com/bwmarrin/discordgo"	
         )
 
 func main(){
-	discord, err := discordgo.New("Bot MzgyNjk5NzE4NzEyNjIzMTMz.DPZhbg.8SB4ux0S99p4FL9kiPdkWoUUdiU")
+	discord, err := discordgo.New("Bot MzgyNjk5NzE4NzEyNjIzMTMz.DPePIQ.Tuk8zqYLBmtKFSqJyPk1Cv9mAYQ")
 
   if err != nil {
     fmt.Println("Error creating discord session: ", err)
@@ -45,38 +46,80 @@ func parseConfig(){
 // Event to handle message creation on any channels that the bot has access to
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
   var msg = m.Message
-  if msg.ChannelID == "360063821718487043" {
-    if strings.HasPrefix(msg.Content, "*color ") {
-      //var color = strings.Split(msg.Content, " ")
-      fmt.Println(msg.Content)
+  var pieces = strings.Split(msg.Content, " ")
+  var command = pieces[0]
+  switch command {
+    case "*color":
+                processColorCommand(pieces, s, msg)
+    case "*help":
+                {
 
-      // TODO: There should be an easier way to do this. We should just be able to see which channels the bot is bound to somehow
-      guildID := getGuildID(s, msg.ChannelID)
-
-      createBasicRoleWithColor(s, 3447003)
-
-      // _, err := s.channelmessagesend(msg.channelid, msg.content)
-      // if err != nil {
-      //   fmt.println("error sending messages to discord: ", err)
-      // }
-    }
+                }
   }
 }
 
-func getGuildID(s *discordgo.Session, channelID string) {
+func processColorCommand(pieces []string, s *discordgo.Session, msg *discordgo.Message) {
+  if len(pieces) == 2 {
+    color, success := parseColor(pieces[1])
+    if success {
+      // TODO: There should be an easier way to get the guild id
+      guildID := getGuildID(s, msg.ChannelID)
+      userID := msg.Author.ID
+
+      setNameColor(s, guildID, userID, color)
+    } else {
+      fmt.Println("failed to parse color")
+    }
+  } else {
+    fmt.Println("failed to parse color")
+  }
+}
+
+func processHelpCommand(s *discordgo.Session, msg *discordgo.Message) {
+
+}
+
+func getGuildID(s *discordgo.Session, channelID string) string {
   channel, err := s.Channel(channelID)
   if err != nil {
     fmt.Println("error retrieving channel to get guild ID", err)
-    return nil
+    return ""
   }
   return channel.GuildID
 }
 
-func createBasicRoleWithColor(s *discordgo.Session, guildID string, color int) {
-  newRole, err := s.GuildRoleCreate(newRole)
-  
+func setNameColor(s *discordgo.Session, guildID string, userID string, color int) {
+  existingRoles, _ := s.GuildRoles(guildID)
+  var existingRole *discordgo.Role
+  for _, element := range existingRoles {
+    if element.Name == userID + "'s color role" {
+      existingRole = element
+    }
+  }
+  if existingRole != nil {
+    s.GuildRoleEdit(guildID, existingRole.ID, existingRole.Name, color, existingRole.Hoist, existingRole.Permissions, existingRole.Mentionable)
+  } else {
+    newRole, _ := s.GuildRoleCreate(guildID)
+    s.GuildRoleEdit(guildID, newRole.ID, userID + "'s color role", 3447003, false, 0, false)
+    s.GuildMemberRoleAdd(guildID, userID, newRole.ID)
+  }
+}
 
+func parseColor(color string) (int, bool) {
+  var decimalValue int
+  if strings.HasPrefix(color, "#") {
+    decimalValue64, err := strconv.ParseInt(color[1:len(color)], 16, 32)
+    decimalValue = int(decimalValue64)
+    if err != nil {
+      decimalValue = -1
+    }
+  } else {
 
-  newRole := discordgo.Role{Name:"new color role", Managed: false, Mentionable: false, Hoist: false, Managed: false, Color: color, Position: 1, Permissions: 0}
+  }
   
+  if decimalValue >= 0 && decimalValue <= 16777215 {
+    return decimalValue, true
+  } else {
+    return -1, false
+  }
 }
