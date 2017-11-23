@@ -69,6 +69,8 @@ func processColorCommand(pieces []string, s *discordgo.Session, msg *discordgo.M
       userID := msg.Author.ID
 
       setNameColor(s, guildID, userID, color)
+      var messageContent = msg.Author.Username + ", your color has now been set to " + pieces[1]
+      s.ChannelMessageSend(msg.ChannelID, messageContent)
     } else {
       fmt.Println("failed to parse color")
     }
