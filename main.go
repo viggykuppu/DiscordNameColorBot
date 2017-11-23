@@ -2,6 +2,7 @@ package main
 
 import (
           "fmt"
+          "io/ioutil"
           "os"
           "os/signal"
           "strings"
@@ -10,9 +11,12 @@ import (
 
           "github.com/bwmarrin/discordgo"	
         )
+var authToken string
 
-func main(){
-	discord, err := discordgo.New("Bot MzgyNjk5NzE4NzEyNjIzMTMz.DPePIQ.Tuk8zqYLBmtKFSqJyPk1Cv9mAYQ")
+func main() {
+  parseConfig()
+
+	discord, err := discordgo.New("Bot " + authToken)
 
   if err != nil {
     fmt.Println("Error creating discord session: ", err)
@@ -40,7 +44,34 @@ func main(){
 }
 
 func parseConfig(){
+  defer handleInternalError()
+  dat, err := ioutil.ReadFile("settings")
+  check(err)
 
+  var stringData = string(dat)
+  var lines = strings.Split(stringData,"\n")
+
+  for _, line := range lines {
+    pieces := strings.Split(line,"=")
+    key := pieces[0]
+    value := pieces[1]
+    switch key {
+      case "auth_token":
+        authToken = value
+    }
+  }
+}
+
+func check(err error) {
+  if err != nil {
+    panic(err)
+  }
+}
+
+func handleInternalError(){
+  if r := recover(); r != nil {
+    fmt.Println("Recovered in f", r)
+  }
 }
 
 // Event to handle message creation on any channels that the bot has access to
@@ -105,7 +136,7 @@ func setNameColor(s *discordgo.Session, guildID string, userID string, color int
     s.GuildRoleEdit(guildID, existingRole.ID, existingRole.Name, color, existingRole.Hoist, existingRole.Permissions, existingRole.Mentionable)
   } else {
     newRole, _ := s.GuildRoleCreate(guildID)
-    s.GuildRoleEdit(guildID, newRole.ID, userID + "'s color role", 3447003, false, 0, false)
+    s.GuildRoleEdit(guildID, newRole.ID, userID + "'s color role", color, false, 0, false)
     s.GuildMemberRoleAdd(guildID, userID, newRole.ID)
   }
 }
