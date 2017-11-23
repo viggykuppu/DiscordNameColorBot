@@ -50,9 +50,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
   var command = pieces[0]
   switch command {
     case "*color":
-                processColorCommand(pieces, s, msg)
-    case "*help":
-                processHelpCommand(s, msg)
+      processColorCommand(pieces, s, msg)
+    default:
+      {
+        if strings.HasPrefix(command, "*") {
+          processHelpCommand(s,msg)
+        }
+      }
   }
 }
 
