@@ -52,9 +52,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
     case "*color":
                 processColorCommand(pieces, s, msg)
     case "*help":
-                {
-
-                }
+                processHelpCommand(s, msg)
   }
 }
 
@@ -76,7 +74,8 @@ func processColorCommand(pieces []string, s *discordgo.Session, msg *discordgo.M
 }
 
 func processHelpCommand(s *discordgo.Session, msg *discordgo.Message) {
-
+  var messageContent = "Please enter a command of the following format:\n\t***color <color_value>**\n\tWhere color value is of the format *#<hex_value>*, *0x<hex_value>*, or *<decimal_value>*\n\tYou can find the corresponding hex values for colors here: https://www.w3schools.com/colors/colors_picker.asp"
+  s.ChannelMessageSend(msg.ChannelID, messageContent)
 }
 
 func getGuildID(s *discordgo.Session, channelID string) string {
@@ -113,8 +112,18 @@ func parseColor(color string) (int, bool) {
     if err != nil {
       decimalValue = -1
     }
+  } else if strings.HasPrefix(color, "0x") {
+    decimalValue64, err := strconv.ParseInt(color, 0, 32)
+    decimalValue = int(decimalValue64)
+    if err != nil {
+      decimalValue = -1
+    }
   } else {
-
+    decimalValue64, err := strconv.ParseInt(color, 10, 32)
+    decimalValue = int(decimalValue64)
+    if err != nil {
+      decimalValue = -1
+    }
   }
   
   if decimalValue >= 0 && decimalValue <= 16777215 {
