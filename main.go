@@ -24,11 +24,10 @@ func main() {
 
   discord.AddHandler(messageCreate)
 
-  discord.UpdateStatus(0,"Type *help for a Direct Message with instructions!")
-
-
   // Open the websocket and begin listening.
   err = discord.Open()
+
+  err = discord.UpdateStatus(0,"Type *help")
 
   if err != nil {
     fmt.Println("Error opening Discord session: ", err)
